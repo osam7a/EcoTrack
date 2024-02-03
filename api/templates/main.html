@@ -50,7 +50,19 @@
         }
     </style>
     <div class="container mt-2">
-        <h1>Welcome back, {{user_info['name'].split()[0]}}</h1>
+        <div class="row">
+            <div class="col-3">
+                <h1>EcoTrack</h1>
+                <p>A software aiming for impact on reducing global carbon emissions by focusing on electricity consumption within households</p>
+            </div>
+            <div class="col-6">
+                <h1 style="color: white;">lorem ipsum dolor</h1>
+            </div>
+            <div class="col-3 border rounded p-2 border-secondary">
+                <h3>Logged in as: {{user_info['name']}}</h3>
+                <p><b>Household ID:</b> {{user_info['household_id']}} <br> <b>District:</b> {{user_info['district']}} <br> <b>Email:</b> {{user_info['email']}}</p>
+            </div>
+        </div>
         <div class="m-5">
             <canvas id="chart"></canvas>
             <div class="row m-5 gap-5">
@@ -100,6 +112,10 @@
         </div>
     </div>
     <script>
+        if (window.innerWidth < 1000) {
+            alert("This website is not optimized for devices with a lower resolution than 1000px. Please use a device with a higher resolution for a better experience.")
+            window.location.href = "/"
+        }
         function deleteEvent(event) {
             fetch('/delete_event', {
                 method: 'POST',
