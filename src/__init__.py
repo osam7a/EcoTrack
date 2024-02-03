@@ -1,2 +1,2 @@
-from ._app import app
+from .index import app
 from .utils import log
