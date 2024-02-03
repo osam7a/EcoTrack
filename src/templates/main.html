@@ -8,25 +8,134 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 </head>
 <body>
+    <!-- Generate Analysis Modal -->
+    <div class="modal fade" id="analysisModal" tabindex="-1" aria-labelledby="analysisModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analysisModalLabel">Household Analysis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h1>Household Analysis #001 (Demo)</h1>
+                    <h3>Overview</h3>
+                    <p>Based on your electricity consumption, we have found that you can save up to 20% of your electricity bill by replacing your old refrigerator (Samsung S-3254) with a new (Samsung S-3255) by a staggerating 155 kWh!.</p>
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-action list-group-item-danger">This household consumes <b>53%</b> than the average household energy consumption in your vicinity!!</li>
+                        <li class="list-group-item list-group-item-action">Your TV purchase in April has increased your energy consumption by a 33% factor, <b>Try reducing its usage</b></li>
+                        <li class="list-group-item list-group-item-action">The new AC you've installed in November is consuming much more than the average (1100 kWh, your AC is consuming ~1350 kWh). Have someone to check on it or change it</li>
+                    </ul>
+                    <h3>Energy Efficiency Tips</h3>
+                    <ul>
+                        <li><b>Lighting: </b>Consider switching to LED bulbs if you haven't already. LEDs consume up to 90% less power than incandescent bulbs and can save a significant amount of energy over time.</li>
+                        <li><b>Heating And Cooling: </b>Regular maintenance of your heating and cooling systems can improve their efficiency. Installing a smart thermostat can also help in optimizing your energy usage by adjusting the temperature based on your habits and preferences.</li>
+                        <li><b>Energy Efficient Appliances: </b>When it's time to replace other appliances, look for those with a high energy efficiency rating. Appliances like dishwashers, washing machines, and dryers can vary significantly in their energy consumption.</li>
+                    </ul>
+                    <h3>Additional Recommendations:</h3>
+                    <ul>
+                        <li><b>Water Heating: </b>Consider lowering your water heater's temperature setting. For every 10 degrees Fahrenheit reduction, you can save about 3-5% on water heating costs.</li>
+                        <li><b>Insulation: </b>Improve your home's insulation to reduce heating and cooling costs. This includes sealing leaks around doors and windows to keep warm or cool air inside.</li>
+                        <li><b>Energy Monitoring: </b>Use an energy monitoring system to track your household's energy consumption in real time. This can help identify unexpected energy spikes and areas for improvement.</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        #deleteEvent {
+            background-color: red!important;
+        }
+    </style>
     <div class="container mt-2">
         <h1>Welcome back, {{user_info['name'].split()[0]}}</h1>
-        <canvas id="chart"></canvas>
-        <div class="d-flex flex-row mt-3 justify-content-around mx-5">
-            <div class="border border-secondary p-5 flex-fill">
-                <h3>Vinicity: {{user_info['district']}}</h3>
+        <div class="m-5">
+            <canvas id="chart"></canvas>
+            <div class="row m-5">
+                <div class="col border border-secondary">
+                    <h2>Vicinity: {{user_info['district']}}</h2>
+                </div>
+                <div class="col border border-secondary">
+                    <h2>Carbon Footprint: <span class="text-danger" id="co2"></span></h2>
+                </div>
             </div>
-            <div class="border border-secondary p-5 flex-fill">
-                <h3>Carbon Footprint (kg): <span class="text-danger"><b id="co2"></b></span> this year</h3>
+            <div class="row mt-2">
+                <div class="col">
+                    <h2>Events this year: </h2>
+                    <p>Here are things which have affected your electricity consumption this year</p>
+                    <div class="list-group">
+                        {% if not events %}
+                            <li class="list-group-item">No events to display</li>
+                        {% endif %}
+                        {% for k, v in events.items() %}
+                            {% if v %}
+                                {% for i in v %}
+                                    <li class="list-group-item d-flex"><div><b>{{k}}: </b>{{i[0]}}</div> <span class="badge bg-secondary ms-auto">+{{i[1][0]}}-{{i[1][1]}} kWh Per Month</span> <button class="ms-2 btn-close" id="deleteEvent" onclick="deleteEvent('{{ i[0] }}')"></button></li>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col">
+                    <h2>Log an event: </h2>
+                    <p>Anything that might affect your electricity consumption, whether it is purchasing a TV or is it fixing your AC, etc.</p>
+                    <form onsubmit="return log_event()">
+                        <div class="mb-3">
+                            <label for="event" class="form-label">What's new?</label>
+                            <input type="text" class="form-control" id="event" name="event" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="start" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="eventDate" name="eventDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Log</button>
+                    </form>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center mt-5">
+                <button class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#analysisModal">Generate Analysis</button>
             </div>
         </div>
     </div>
     <script>
+        function deleteEvent(event) {
+            fetch('/delete_event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    event: event
+                })
+            });
+            setInterval(() => {
+                location.reload();
+            }, 1000);
+        }
+
+        function log_event() {
+            const event = document.getElementById('event').value;
+            const date = document.getElementById('eventDate').value;
+            fetch('/log_event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    event: event,
+                    date: date
+                })
+            });
+            setInterval(() => {
+                location.reload();
+            }, 1000);
+            return false;
+        }
+
         const labels = {{ labels | tojson }};
         const features = {{ data | tojson }};
-        var carbon = [];
-        for (var i = 0; i < features.length; i++) {
-            carbon.push(features[i] * 0.9);
-        }
 
         const data = {
             labels: labels,
@@ -37,14 +146,6 @@
                 borderColor: 'rgb(75, 192, 192)',
                 tension: 0,
                 pointBackgroundColor: 'rgb(75, 192, 192)',
-            },
-            {
-                label: "Carbon Emissions (kg)",
-                data: carbon,
-                fill: false,
-                borderColor: 'rgb(255, 99, 132)',
-                tension: 0,
-                pointBackgroundColor: 'rgb(255, 99, 132)',
             }]
         };
 
@@ -56,6 +157,30 @@
                     point: {
                         pointRadius: 5
                     }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Electricity Consumption in your household for ${new Date().getFullYear()}`
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toLocaleString() + " kWh";
+                                }
+                                return label;
+                            },
+                            footer: function(context) {
+                                var carbon = context[0].parsed.y * .9;
+                                return "Total Carbon Emission: " + carbon.toLocaleString() + " kg";
+                            }
+                        }
+                    }
                 }
             }
         };
@@ -65,7 +190,9 @@
             config
         );
 
-        document.getElementById('co2').innerText = carbon.reduce((a, b) => a + b, 0).toLocaleString() + " kg";
+        const carbon = features.map(x => x * .9);
+
+        document.getElementById('co2').innerText = (carbon.reduce((a, b) => a + b, 0) / 1000).toLocaleString() + " Tons";
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
