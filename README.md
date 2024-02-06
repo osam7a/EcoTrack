@@ -1,3 +1,5 @@
+![Image](img.png "EcoTrack")
+
 # EcoTrack  
 A software aiming for impact on reducing global carbon emissions by focusing on electricity consumption within households
 
