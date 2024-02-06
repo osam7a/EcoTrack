@@ -1,9 +1,7 @@
 from flask import Flask, render_template, redirect, request
 from flask_cors import CORS
 from datetime import datetime
-from .utils import log
-from calendar import month_name
-
+from .utils import log 
 app = Flask(__name__)
 CORS(app)
 
