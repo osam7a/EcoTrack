@@ -6,10 +6,10 @@ app = Flask(__name__)
 CORS(app)
 
 info = {
-    "name": "John Doe",
+    "name": "Ahmad Mansoor",
     "district": "Ajman",
     "household_id": 80041,
-    "email": "john.doe@example.com",
+    "email": "ahmad.mansoor@example.com",
     "data": {
         "labels": ["January", "", "February", "", "March", "", "April", "", "May", "", "June", "", "July", "", "August", "", "September", "", "October", "", "November", "", "December"],
         "data": [800, 835, 815, 865, 855, 862, 880, 918, 910, 930, 920, 942, 955, 950, 940, 1218, 1255, 1280, 1260, 1295, 1380, 1375, 1355, 1390],
