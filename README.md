@@ -6,7 +6,7 @@ A software aiming for impact on reducing global carbon emissions by focusing on 
 ### Dependencies
 
 - `flask` (+ `flask_cors`)
-- Tried on Windows only (so far)
+- Supported OS: Windows
 
 ### Installing
 
@@ -31,6 +31,7 @@ ngrok.exe http 3333
 ```
 
 (For any inquiries, here is my contact info)
+
 **Name:** Osama Alhennawi
 **Email:** osamaziadalhinawi@gmail.com
 **Number:** +971 55 403 2302
